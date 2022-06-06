@@ -2,20 +2,17 @@ import glob
 import os
 import cv2 as cv
 
-files = glob.glob("app/treated/*")
+files = glob.glob("app/treated_images/*")
 for file in files:
     image = cv.imread(file)
     image = cv.cvtColor(image, cv.COLOR_RGB2GRAY)
 
-    # imagem em preto e branco
     _, new_image = cv.threshold(image, 0, 255, cv.THRESH_BINARY_INV)
 
-    # encontrar os contornos de cada letra
     contours, _ = cv.findContours(new_image, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
 
     area_letters = []
 
-    # filtrar os contornos que são realmente de letras
     for contour in contours:
         (x, y, width, height) = cv.boundingRect(contour)
         area = cv.contourArea(contour)
@@ -24,7 +21,6 @@ for file in files:
     if len(area_letters) != 5:
         continue
 
-    #  desenhar os contornos e separar as letras em arquivos individuais
     final_image = cv.merge([image] * 3)
 
     for i, rectangle in enumerate(area_letters, 1):
@@ -40,4 +36,4 @@ for file in files:
         )
 
     file_name = os.path.basename(file)
-    cv.imwrite(f"app/identified/{file_name}", final_image)
+    cv.imwrite(f"app/identified_images/{file_name}", final_image)

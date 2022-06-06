@@ -1,25 +1,25 @@
 import glob
 import os
 
-import cv2
+import cv2 as cv
 from PIL import Image
 
 
-def treat_images(source_folder, destination_folder="adjusted"):
-    files = glob.glob(f"{source_folder}/*")
+def treat_images(input_folder, output_folder="app/treated_images"):
+    files = glob.glob(f"{input_folder}/*")
 
     for file in files:
-        image = cv2.imread(file)
+        image = cv.imread(file)
 
-        gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+        gray_image = cv.cvtColor(image, cv.COLOR_RGB2GRAY)
 
-        _, treated_image = cv2.threshold(
-            gray_image, 127, 255, cv2.THRESH_TRUNC or cv2.THRESH_OTSU
+        _, treated_image = cv.threshold(
+            gray_image, 127, 255, cv.THRESH_TRUNC or cv.THRESH_OTSU
         )
         file_name = os.path.basename(file)
-        cv2.imwrite(f"{destination_folder}/{file_name}", treated_image)
+        cv.imwrite(f"{output_folder}/{file_name}", treated_image)
 
-    files = glob.glob(f"{destination_folder}/*")
+    files = glob.glob(f"{output_folder}/*")
     for file in files:
         image = Image.open(file)
         image = image.convert("L")
@@ -33,8 +33,8 @@ def treat_images(source_folder, destination_folder="adjusted"):
 
         file_name = os.path.basename(file)
 
-        image2.save(f"{destination_folder}/{file_name}")
+        image2.save(f"{output_folder}/{file_name}")
 
 
 if __name__ == "__main__":
-    treat_images("db_captcha")
+    treat_images("app/db_captcha")

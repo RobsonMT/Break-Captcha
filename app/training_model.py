@@ -11,12 +11,11 @@ from keras.layers.core import Flatten, Dense
 from helpers import resize_to_fit
 
 
-# dados
 data = []
-# rotúlos
+
 labels = []
-# imagem base
-base_folder_images = "app/base_letters"
+
+base_folder_images = "app/db_letters"
 
 images = paths.list_images(base_folder_images)
 
@@ -25,53 +24,53 @@ for file in images:
     image = cv.imread(file)
     image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
-    # padronizar a imagem em 20x20
+    # standardize the image in 20x20
     image = resize_to_fit(image, 20, 20)
 
-    # adicionar uma dimensão para o Keras poder ler a imagem
+    # add a dimension so Keras can read the image
     image = np.expand_dims(image, axis=2)
 
-    # adicionar às listas de dados e rótulos
+    # add to data lists and labels
     labels.append(label)
     data.append(image)
 
 data = np.array(data, dtype="float") / 255
 labels = np.array(labels)
 
-# separação em data de treino (75%) e data de teste (25%)
+# separation into training date (75%) and test date (25%)
 (X_train, X_test, Y_train, Y_test) = train_test_split(
     data, labels, test_size=0.25, random_state=0
 )
 
-# Converter com one-hot encoding
+# Convert with one-hot encoding
 lb = LabelBinarizer().fit(Y_train)
 Y_train = lb.transform(Y_train)
 Y_test = lb.transform(Y_test)
 
-# salvar o labelbinarizer em um file com o pickle
+# save label_binarizer to a file with pickle
 with open("app/labels_model.dat", "wb") as pickle_file:
     pickle.dump(lb, pickle_file)
 
-# criar e treinar a inteligência artificial
+# create and train artificial intelligence
 modelo = Sequential()
 
-# criar as camadas da rede neural
+# create the neural network layers
 modelo.add(
     Conv2D(20, (5, 5), padding="same", input_shape=(20, 20, 1), activation="relu")
 )
 modelo.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
-# criar a 2ª camada
+# create a second layer
 modelo.add(Conv2D(50, (5, 5), padding="same", activation="relu"))
 modelo.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
-# mais uma camada
+# add one more layer
 modelo.add(Flatten())
 modelo.add(Dense(500, activation="relu"))
-# camada de saída
+# output layer
 modelo.add(Dense(26, activation="softmax"))
-# compilar todas as camadas
+# compile all layers
 modelo.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
 
-# treinar a inteligência artificial
+# train IA
 modelo.fit(
     X_train,
     Y_train,
@@ -81,5 +80,5 @@ modelo.fit(
     verbose=1,
 )
 
-# salvar o modelo em um arquivo
+# save the model to a file
 modelo.save("app/trained_model.hdf5")
